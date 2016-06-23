@@ -11,3 +11,42 @@
  Tags:         light, dark, two-columns, right-sidebar, responsive-layout, accessibility-ready
  Text Domain:  storefront-child
 */
+
+#cart-compatibility-checker {
+    float: left;
+    width: 250px;
+    background-color: #f8f8f8;
+    padding: 30px;
+}
+
+#cart-compatibility-checker ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#cart-compatibility-checker ul li {
+    padding-left: 28px;
+    font-size: 1.25em;
+    line-height: 32px;
+    font-weight: 600;
+    position: relative;
+}
+
+#cart-compatibility-checker ul li:before {
+    font-family: "dashicons";
+    color: #71dd33;
+    position: absolute;
+    left: 0;
+    content: "\f147";
+}
+
+#cart-compatibility-checker ul li.not-in-build:before {
+    color: #e2401c;
+    content: "\f158";
+}
+
+#woocommerce-cart {
+    width: calc(100% - 250px);
+    float: left;
+}
