@@ -213,18 +213,20 @@ if ( ! function_exists( 'storefront_secondary_navigation' ) ) {
 	 * @return void
 	 */
 	function storefront_secondary_navigation() {
-		?>
-		<nav class="secondary-navigation" role="navigation" aria-label="<?php esc_html_e( 'Secondary Navigation', 'storefront' ); ?>">
-			<?php
-				wp_nav_menu(
-					array(
-						'theme_location'	=> 'secondary',
-						'fallback_cb'		=> '',
-					)
-				);
-			?>
-		</nav><!-- #site-navigation -->
-		<?php
+	    if ( has_nav_menu( 'secondary' ) ) {
+		    ?>
+		    <nav class="secondary-navigation" role="navigation" aria-label="<?php esc_html_e( 'Secondary Navigation', 'storefront' ); ?>">
+			    <?php
+				    wp_nav_menu(
+					    array(
+						    'theme_location'	=> 'secondary',
+						    'fallback_cb'		=> '',
+					    )
+				    );
+			    ?>
+		    </nav><!-- #site-navigation -->
+		    <?php
+		}
 	}
 }
 
@@ -761,18 +763,22 @@ if ( ! function_exists( 'storefront_post_thumbnail' ) ) {
 	}
 }
 
-/**
- * The primary navigation wrapper
- */
-function storefront_primary_navigation_wrapper() {
-	echo '<section class="storefront-primary-navigation">';
+if ( ! function_exists( 'storefront_primary_navigation_wrapper' ) ) {
+	/**
+	 * The primary navigation wrapper
+	 */
+	function storefront_primary_navigation_wrapper() {
+		echo '<section class="storefront-primary-navigation">';
+	}
 }
 
-/**
- * The primary navigation wrapper close
- */
-function storefront_primary_navigation_wrapper_close() {
-	echo '</section>';
+if ( ! function_exists( 'storefront_primary_navigation_wrapper_close' ) ) {
+	/**
+	 * The primary navigation wrapper close
+	 */
+	function storefront_primary_navigation_wrapper_close() {
+		echo '</section>';
+	}
 }
 
 if ( ! function_exists( 'storefront_init_structured_data' ) ) {
