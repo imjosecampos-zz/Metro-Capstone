@@ -10,6 +10,8 @@ add_filter( 'woocommerce_product_add_to_cart_text', 'woo_custom_cart_button_text
 function pcarena_enqueue_styles() {
     wp_enqueue_style( 'dashicons' );
     wp_enqueue_style( 'storefront-style', get_template_directory_uri() . '/style.css', 'dashicons' );
+    
+    wp_enqueue_script( 'pcarena-functions', get_stylesheet_directory_uri() . '/js/functions.js', 'jQuery');
 
 }
 add_action( 'wp_enqueue_scripts', 'pcarena_enqueue_styles' );

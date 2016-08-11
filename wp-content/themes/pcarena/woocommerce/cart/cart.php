@@ -20,19 +20,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+global $can_checkout;
+
 $wc_cart = WC()->cart->get_cart();
 $cats_in_cart = array();
 
+$can_checkout = true;
+
+$needs_has = array();
+
 foreach($wc_cart as $cart_item) {
+    
+    $prod = new WC_Product($cart_item['product_id']);
+    
     foreach(get_the_terms( $cart_item['product_id'], 'product_cat' ) as $prod_cat) {
-        $cats_in_cart[] = $prod_cat->term_id;
+        
+        if(!in_array($prod_cat->term_id, $cats_in_cart)) {
+            $cats_in_cart[] = $prod_cat->term_id;
+        } else {
+            wc_add_notice( 'Multiple ' . $prod_cat->name . ' in your build', 'error' );
+            $can_checkout = false;
+        }
+    }
+    
+    $attributes = $prod->get_attributes();
+    
+    foreach($attributes as $attribute) {
+        $values = explode(' | ', $attribute['value']);
+        
+        foreach($values as $value) {
+            $parts = explode(' # ', $value);
+            
+            if(!$needs_has[$parts[0]])
+                $needs_has[$parts[0]] = array();
+                
+            $needs_has[$parts[0]][$attribute['name']] = $parts[1];
+        }
     }
 }
 
-?>
-
-<section id="cart-compatibility-checker">
-<?php
+foreach($needs_has as $c => $constraint) {
+    if($constraint['needs'] > $constraint['has']) {
+        wc_add_notice( 'Missing ' . $c . ' in your build', 'error' );
+        $can_checkout = false;
+    }
+}
 
 $taxonomy     = 'product_cat';
 $orderby      = 'name';   
@@ -46,25 +78,32 @@ $args = array(
 
 $all_categories = get_categories( $args );
 
-echo '<ul>';
+$cat_html = '<ul>';
 
 foreach ($all_categories as $cat) {
     $class = '';
     
-    if(!in_array($cat->term_id, $cats_in_cart))
+    if(!in_array($cat->term_id, $cats_in_cart)) {
         $class = "class=\"not-in-build\"";
+        $can_checkout = false;
+    }
         
-    echo '<li ' . $class . '>'. $cat->name .'</li>';      
+    $cat_html = $cat_html . '<li ' . $class . '>'. $cat->name .'</li>';      
 }
 
-echo '</ul>';
+$cat_html = $cat_html . '</ul>';
 
 ?>
+
+<?php wc_print_notices(); ?>
+
+<section id="cart-compatibility-checker">
+
+<?php echo $cat_html; ?>
+
 </section>
 
 <?php
-
-wc_print_notices();
 
 do_action( 'woocommerce_before_cart' ); ?>
 
@@ -80,8 +119,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 			<th class="product-remove">&nbsp;</th>
 			<th class="product-thumbnail">&nbsp;</th>
 			<th class="product-name"><?php _e( 'Product', 'woocommerce' ); ?></th>
-			<th class="product-price"><?php _e( 'Price', 'woocommerce' ); ?></th>
-			<th class="product-quantity"><?php _e( 'Quantity', 'woocommerce' ); ?></th>
+			<?php /* <th class="product-price"><?php _e( 'Price', 'woocommerce' ); ?></th> */ ?>
+			<?php /* <th class="product-quantity"><?php _e( 'Quantity', 'woocommerce' ); ?></th> */ ?>
 			<th class="product-subtotal"><?php _e( 'Total', 'woocommerce' ); ?></th>
 		</tr>
 	</thead>
@@ -139,13 +178,18 @@ do_action( 'woocommerce_before_cart' ); ?>
 							}
 						?>
 					</td>
+					
+					<?php
+                        
+                    // Removing since each build must have only one of each items
+                    /*
 
 					<td class="product-price" data-title="<?php _e( 'Price', 'woocommerce' ); ?>">
 						<?php
 							echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
 						?>
 					</td>
-
+                    
 					<td class="product-quantity" data-title="<?php _e( 'Quantity', 'woocommerce' ); ?>">
 						<?php
 							if ( $_product->is_sold_individually() ) {
@@ -162,6 +206,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 							echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
 						?>
 					</td>
+					
+					*/ ?>
 
 					<td class="product-subtotal" data-title="<?php _e( 'Total', 'woocommerce' ); ?>">
 						<?php
@@ -187,7 +233,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 					</div>
 				<?php } ?>
 
-				<input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update Cart', 'woocommerce' ); ?>" />
+				<?php /* <input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update Cart', 'woocommerce' ); ?>" /> */ ?>
 
 				<?php do_action( 'woocommerce_cart_actions' ); ?>
 
